@@ -1,7 +1,4 @@
-def load_text_file(address):
-    with open(address) as f:
-        data = [line.rstrip() for line in f]
-    return data
+from aoc_utils.funcs import load_text_file
 
 def cast_data_to_int(data):
     return [int(item) if item else None for item in data]
