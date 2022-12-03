@@ -2,8 +2,8 @@ from aoc_utils.funcs import load_text_file
 import string
 
 PRIORITY = {
-    letter: index +1 for 
-    index, letter in 
+    letter: index +1
+    for index, letter in 
     enumerate(
         string.ascii_lowercase + string.ascii_uppercase
         )
@@ -31,7 +31,6 @@ def get_priority(bag):
 def get_total_sum_of_priority(bags):
     return sum([get_priority(bag) for bag in bags])
 
-
 def run():
     address = "input.txt"
     groups = split_bags_into_groups(load_text_file(address), n=3)
@@ -40,3 +39,4 @@ def run():
 
 if __name__ == "__main__":
     print(run())
+    
