@@ -63,9 +63,7 @@ def score_for_round(round):
 def run():
     address = "input.txt"
     rounds = extract_guesses(address)
-
     total_score = sum([score_for_round(round) for round in rounds])
-
     return total_score
 
 if __name__ == '__main__':
