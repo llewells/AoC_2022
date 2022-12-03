@@ -9,14 +9,6 @@ PRIORITY = {
         )
 }
 
-# def split_bag_into_compartments(bag):
-#     mid = int(len(bag)/2)
-#     split_bag = [bag[:mid], bag[mid:]]
-#     return split_bag
-
-# def split_all_bags(bags):
-#     return [split_bag_into_compartments(bag) for bag in bags]
-
 def split_bags_into_groups(bags, n):
     return [
         bags[index:index+n] 
