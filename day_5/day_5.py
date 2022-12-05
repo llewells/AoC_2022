@@ -25,13 +25,14 @@ def decode_all_instructions(instructions):
         ]
 
 
-
 def run():
     address = "test.txt"
     data = load_text_file(address)
 
     map, instructions = split_input_from_instructions(data)
     instructions = decode_all_instructions(instructions)
+
+
     return instructions
 
 if __name__ == "__main__":
