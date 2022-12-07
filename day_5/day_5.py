@@ -17,7 +17,7 @@ def get_values_from_line(line):
 def decode_instruction(instruction):
     values = get_values_from_line(instruction)
     decoded_instruction = {
-        "iterations" : int(values[0]),
+        "amount" : int(values[0]),
         "source" : int(values[1]),
         "dest" : int(values[2])
     }
@@ -90,21 +90,18 @@ def perform_instructions(stacks, instructions):
     return stacks
 
 def action_instruction(stacks, instruction):
-    [
-        move_item(
-            stacks,
-            instruction['source'],
-            instruction['dest']
-            ) 
-        for _ in range(instruction["iterations"])
-    ]
-    
+    move_item(
+        stacks,
+        instruction['source'],
+        instruction['dest'],
+        instruction["amount"]
+        ) 
     return stacks
 
-def move_item(stacks, src, dest):
-    item = stacks[src][-1]
-    stacks[src].pop()
-    stacks[dest].append(item)
+def move_item(stacks, src, dest, amount):
+    items = stacks[src][-amount:]
+    stacks[src] = stacks[src][:-amount]
+    stacks[dest] += items
     return stacks
 
 def read_stacks(stacks):
