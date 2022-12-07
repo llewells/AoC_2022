@@ -1,6 +1,7 @@
 from aoc_utils.funcs import load_text_file
+import re
 
-
+# split main data
 def split_input_from_instructions(data):
     delimiter = ''
     index_pos = data.index(delimiter)
@@ -8,14 +9,17 @@ def split_input_from_instructions(data):
     instructions = data[index_pos+1:]
     return map, instructions
 
+
+# get instrcutions
+def get_values_from_line(line):
+    return re.findall(r"\d+", line)
+
 def decode_instruction(instruction):
-    temp = instruction.split(' ')
-    to_remove = ['move', 'from', 'to']
-    [temp.remove(item) for item in to_remove]
+    values = get_values_from_line(instruction)
     decoded_instruction = {
-        "iterations" : int(temp[0]),
-        "source" : int(temp[1]),
-        "dest" : int(temp[2])
+        "iterations" : int(values[0]),
+        "source" : int(values[1]),
+        "dest" : int(values[2])
     }
     return decoded_instruction
 
@@ -26,47 +30,50 @@ def decode_all_instructions(instructions):
         ]
 
 
-def replace_pattern_in_string(line, pattern, new):
-    line = line.replace(pattern, new)
-    return line
+# clean and process map data
+def add_empty_items(line):
+    '''converts space to show the correct number of empty containers'''
+    regex = r"(^\s\s+)|(\s\s+)"
+    res_str = re.sub(regex, replace_space_with_containers, line)
+    return res_str
 
-def replace_pattern_in_map(map):
+def replace_space_with_containers(match_obj):
+    lookup_1 = [ "[", " ", "]", " "]
+    lookup_2 = [ " ", "[", " ", "]"]
+    mod = len(lookup_1)
+    if match_obj.group(1) is not None:
+        return "".join([lookup_1[i % mod] for i, _ in enumerate(match_obj.group())])
+    if match_obj.group(2) is not None:
+        return "".join([lookup_2[i % mod] for i, _ in enumerate(match_obj.group())])
 
-    ### Need to replace withe regex that looks for gap of 2 or more spaces
-    ### when rounf replace each point using the patter [" ", "[", " ", "]"]
-    ### this will change "[P]     [R]" -> "[P] [ ] [R]" 
+def get_item_values(line):
+    return re.findall(r"\[(.*?)\]", line)
 
-    new_map = [
-        replace_pattern_in_string(line, pattern="     ", new="[ ]")
-        for line in map
-    ]
-
-    new_map = [
-        replace_pattern_in_string(line, pattern="][", new="],[")
-        for line in new_map
-    ]
-
-    # new_map = [
-    #     replace_pattern_in_string(line, pattern="]", new="")
-    #     for line in new_map
-    # ]
-
-    # new_map = [
-    #     replace_pattern_in_string(line, pattern="[", new="")
-    #     for line in new_map
-    # ]
-
-    new_map[-1] = replace_pattern_in_string(map[-1], pattern="   ", new=",")
- 
+def convert_lines_into_items_arrays(map):
+    new_map = [add_empty_items(line) for line in map]
+    new_map = [get_item_values(line) for line in new_map]
     return new_map
 
-def split_and_strip(line):
-    return [item.strip() for item in line.split(",")]
+def remove_whitespace(line):
+    return [item.strip() for item in line]
+
+
+# build stacks from map
+def convert_map_into_stacks(map):
+    stack_names = get_stack_names(map[-1])
+    items_in_map = clean_row_data_of_map(map[:-1])
+    stacks = {
+        stack: build_stack_from_map(items_in_map[::-1], stack)
+        for stack in stack_names
+        }
+    return stacks
+
+def get_stack_names(line):
+    return [int(item) for item in get_values_from_line(line)]
 
 def clean_row_data_of_map(map):
-    map = replace_pattern_in_map(map)
-    map = [split_and_strip(line) for line in map]
-    map[-1] = [int(item) for item in map[-1]]
+    map = convert_lines_into_items_arrays(map)
+    map = [remove_whitespace(line) for line in map]
     return map
 
 def build_stack_from_map(map, col_n):
@@ -75,19 +82,9 @@ def build_stack_from_map(map, col_n):
         if (len(row) >= col_n) and (row[col_n - 1]):
             column.append(row[col_n - 1])
     return column
-    
-    
-def convert_map_into_stacks(map):
-    map = clean_row_data_of_map(map)
-    stack_names = map[-1]
-    items_in_map = map[:-1]
-    stacks = {
-        stack: build_stack_from_map(items_in_map[::-1], stack)
-        for stack in stack_names
-        }
-    return stacks
 
 
+# perform instructions
 def perform_instructions(stacks, instructions):
     [action_instruction(stacks, line) for line in instructions]
     return stacks
@@ -120,15 +117,11 @@ def run():
 
     map, instructions = split_input_from_instructions(data)
     stacks = convert_map_into_stacks(map)
-    # instructions = decode_all_instructions(instructions)
+    instructions = decode_all_instructions(instructions)
 
-    # stacks = perform_instructions(stacks, instructions)
+    stacks = perform_instructions(stacks, instructions)
 
-    # return read_stacks(stacks)
-
-    
-
-    return replace_pattern_in_map(map)
+    return read_stacks(stacks)
 
 
 if __name__ == "__main__":
